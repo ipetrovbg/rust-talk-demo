@@ -1,0 +1,40 @@
+service: rust-talk-demo
+
+provider:
+  name: aws
+  memorySize: 128
+  versionFunctions: false
+  region: eu-central-1
+
+plugins:
+  - cargo-lambda-serverless
+  - serverless-webpack
+
+custom:
+  webpack:
+    packager: npm
+    includeModules:
+      forceExclude:
+        - aws-sdk
+    webpackConfig: './webpack.config.js'
+
+
+package:
+  individually: true
+
+functions:
+  # NodeJS Lambdas
+  nodeSum:
+    handler: src/node-sum.main
+    runtime: nodejs18.x
+    url:
+      cors: true
+
+  # Rust Lambdas
+  rust_sum:
+    handler: bootstrap
+    runtime: provided.al2
+    cargo:
+      path: target/lambda/rust_sum/bootstrap
+    url:
+      cors: true
